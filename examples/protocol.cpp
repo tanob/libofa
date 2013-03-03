@@ -12,23 +12,22 @@
 #include <map>
 #include <expat.h>
 #include <curl/curl.h>
-#include <curl/types.h>
 #include <curl/easy.h>
 
 using namespace std;
 
 #include "protocol.h"
 
-const char *url = "http://ofa.musicdns.org/ofa/1/track"; 
+const char *url = "http://ofa.musicdns.org/ofa/1/track";
 const char *userAgent = "libofa_example";
 const char *unknown = "unknown";
 
 // Lookup by fingerprint
-const char *request_format = 
+const char *request_format =
     "cid=%s&"       // Client ID
     "cvr=%s&"       // Client Version
     "fpt=%s&"       // Fingerprint
-    "rmd=%d&"       // m = 1: return metadata; m = 0: only return id 
+    "rmd=%d&"       // m = 1: return metadata; m = 0: only return id
     "brt=%d&"       // bitrate (kbps)
     "fmt=%s&"       // File extension (e.g. mp3, ogg, flac)
     "dur=%ld&"      // Length of track (milliseconds)
@@ -45,8 +44,8 @@ const char *request_format =
 const char *request_format2 =
     "cid=%s&"       // Client ID
     "cvr=%s&"       // Client Version
-    "pid=%s&"       // PUID 
-    "rmd=%d&"       // m = 1: return metadata; m = 0: only return id 
+    "pid=%s&"       // PUID
+    "rmd=%d&"       // m = 1: return metadata; m = 0: only return id
     "brt=%d&"       // bitrate (kbps)
     "fmt=%s&"       // File extension (e.g. mp3, ogg, flac)
     "dur=%ld&"      // Length of track (milliseconds)
@@ -76,7 +75,7 @@ long http_post(const string &url, const string &userAgent, const string &postDat
   long               ret = 0;
   struct curl_slist *headerlist=NULL;
 
-  headerlist = curl_slist_append(headerlist, "Expect:"); 
+  headerlist = curl_slist_append(headerlist, "Expect:");
 
   curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
@@ -98,7 +97,7 @@ long http_post(const string &url, const string &userAgent, const string &postDat
 }
 
 // --------------------------------------------------------------------
-// XML Parsing support 
+// XML Parsing support
 // --------------------------------------------------------------------
 
 struct ParseInfo
@@ -150,7 +149,7 @@ void pc_data(void *data, const XML_Char *charData, int len)
     delete temp;
 }
 
-bool parse_xml(const string &doc, TrackInformation *info, string &err) 
+bool parse_xml(const string &doc, TrackInformation *info, string &err)
 {
     ParseInfo pinfo;
 
@@ -183,7 +182,7 @@ bool parse_xml(const string &doc, TrackInformation *info, string &err)
 
 // Returns true on success
 bool retrieve_metadata(string client_key, string client_version,
-	TrackInformation *info, bool getMetadata) 
+	TrackInformation *info, bool getMetadata)
 {
     if (!info)
 	return false;
@@ -215,32 +214,32 @@ bool retrieve_metadata(string client_key, string client_version,
     // Sloppily estimate the size of the resultant URL. Err on the side of making the string too big.
     int bufSize = strlen(lookupByPrint ? request_format : request_format2) +
             client_key.length() + client_version.length() +
-            (lookupByPrint ? info->getPrint().length() : info->getPUID().length()) + 
-            16 + // getMetadata ? 1 : 0, 
+            (lookupByPrint ? info->getPrint().length() : info->getPUID().length()) +
+            16 + // getMetadata ? 1 : 0,
             16 + // info->getBitrate(),
-            16 + //info->getFormat().c_str(), 
-            16 + //info->getLengthInMS(), 
+            16 + //info->getFormat().c_str(),
+            16 + //info->getLengthInMS(),
             ((info->getArtist().c_str() == 0) ? strlen(unknown) : info->getArtist().length()) +
             ((info->getTrack().c_str() == 0) ?  strlen(unknown) : info->getTrack().length()) +
             ((info->getAlbum().c_str() == 0) ?  strlen(unknown) : info->getAlbum().length()) +
-            16 + // info->getTrackNum() + 
+            16 + // info->getTrackNum() +
             ((info->getGenre().c_str() == 0) ?  strlen(unknown) : info->getGenre().length()) +
             ((info->getYear().c_str() == 0) ? 1 : info->getYear().length()) +
             info->getEncoding().length();
-        
+
     char *buf = new char[bufSize];
-    sprintf(buf, lookupByPrint ? request_format : request_format2, 
-            client_key.c_str(), 
+    sprintf(buf, lookupByPrint ? request_format : request_format2,
+            client_key.c_str(),
             client_version.c_str(),
-            lookupByPrint ? info->getPrint().c_str() : info->getPUID().c_str(), 
-            getMetadata ? 1 : 0, 
+            lookupByPrint ? info->getPrint().c_str() : info->getPUID().c_str(),
+            getMetadata ? 1 : 0,
             info->getBitrate(),
-            info->getFormat().c_str(), 
-            info->getLengthInMS(), 
+            info->getFormat().c_str(),
+            info->getLengthInMS(),
             (info->getArtist().length() == 0) ? unknown : info->getArtist().c_str(),
             (info->getTrack().length() == 0) ? unknown : info->getTrack().c_str(),
             (info->getAlbum().length() == 0) ? unknown : info->getAlbum().c_str(),
-            info->getTrackNum(), 
+            info->getTrackNum(),
             (info->getGenre().length() == 0) ? unknown : info->getGenre().c_str(),
             (info->getYear().length() == 0) ? "0" : info->getYear().c_str(),
             info->getEncoding().c_str());
