@@ -20,7 +20,16 @@ inline const _Tp& max(const _Tp& __a, const _Tp& __b) {
 namespace TNT
 {
 /**
-	@returns hypotenuse of real (non-complex) scalars a and b by 
+	@returns the absolute value of a real (no-complex) scalar.
+*/
+template <class Real>
+Real abs(const Real &a)
+{
+	return  (a > 0 ? a : -a);
+}
+
+/**
+	@returns hypotenuse of real (non-complex) scalars a and b by
 	avoiding underflow/overflow
 	using (a * sqrt( 1 + (b/a) * (b/a))), rather than
 	sqrt(a*a + b*b).
@@ -28,9 +37,10 @@ namespace TNT
 template <class Real>
 Real hypot(const Real &a, const Real &b)
 {
-	
 	if (a== 0)
+	{
 		return abs(b);
+	}
 	else
 	{
 		Real c = b/a;
@@ -55,16 +65,6 @@ Scalar max(const Scalar &a, const Scalar &b)
 	return  a > b ? a : b;
 }
 */
-
-/**
-	@returns the absolute value of a real (no-complex) scalar.
-*/
-template <class Real>
-Real abs(const Real &a)
-{
-	return  (a > 0 ? a : -a);
-}
-
 }
 #endif
 /* MATH_UTILS_H */
